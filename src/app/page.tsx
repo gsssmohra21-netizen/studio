@@ -51,7 +51,7 @@ export default function Home() {
                     </Card>
                 </div>
             ))}
-            {products?.map((product) => (
+            {!isLoading && products?.map((product) => (
               <ProductDetailsDialog key={product.id} product={product}>
                 <div className="group block cursor-pointer">
                   <Card className="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
@@ -76,6 +76,13 @@ export default function Home() {
               </ProductDetailsDialog>
             ))}
           </div>
+           {!isLoading && products?.length === 0 && (
+            <div className="text-center text-muted-foreground py-12">
+              <h3 className="text-2xl font-semibold">No Products Found</h3>
+              <p className="mt-2">It looks like there are no products in the database.</p>
+              <p className="mt-1">Try running <code className="bg-muted px-2 py-1 rounded">npm run db:seed</code> in the terminal to add them.</p>
+            </div>
+          )}
         </section>
       </main>
       <footer className="bg-card border-t mt-auto">
