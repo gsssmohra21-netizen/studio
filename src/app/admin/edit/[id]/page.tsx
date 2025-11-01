@@ -86,7 +86,7 @@ export default function EditProductPage() {
             name: data.name,
             description: data.description,
             price: data.price,
-            priceFormatted: `₹${data.price.toLocaleString('en-IN')}`,
+            priceFormatted: `${data.price}rs`,
             images: data.images.map((img, index) => (
                 {
                     id: `${id}_img_${index}`,

@@ -1,5 +1,6 @@
+
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, writeBatch } from 'firebase/firestore';
+import { getFirestore, collection, writeBatch, doc } from 'firebase/firestore';
 import { firebaseConfig } from '../src/firebase/config';
 
 // Data from placeholder-images.json
@@ -43,7 +44,7 @@ const originalProducts = [
     name: 'Denim Jacket',
     description: 'A timeless denim jacket that adds a cool, casual layer to any outfit. Made from 100% durable cotton, it features classic button-front styling, chest pockets, and a comfortable fit that gets better with every wear.',
     price: 2999,
-    priceFormatted: '₹2,999',
+    priceFormatted: '2999rs',
     images: [{ id: 'prod_1_img' }],
     sizes: ['S', 'M', 'L', 'XL'],
   },
@@ -52,7 +53,7 @@ const originalProducts = [
     name: 'Classic White Tee',
     description: 'The perfect wardrobe essential. Our Classic White Tee is crafted from ultra-soft premium cotton for a breathable, comfortable feel. Its versatile design makes it ideal for layering or wearing on its own.',
     price: 899,
-    priceFormatted: '₹899',
+    priceFormatted: '899rs',
     images: [{ id: 'prod_2_img' }],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
   },
@@ -61,7 +62,7 @@ const originalProducts = [
     name: 'Black Skinny Jeans',
     description: 'Elevate your style with our Black Skinny Jeans. Designed to flatter, these jeans offer a sleek, modern silhouette with just the right amount of stretch for all-day comfort. A versatile staple for any wardrobe.',
     price: 2499,
-    priceFormatted: '₹2,499',
+    priceFormatted: '2499rs',
     images: [{ id: 'prod_3_img' }],
     sizes: ['28', '30', '32', '34', '36'],
   },
@@ -70,7 +71,7 @@ const originalProducts = [
     name: 'Floral Summer Dress',
     description: 'Embrace the sunshine in our beautiful Floral Summer Dress. Featuring a vibrant floral print, a lightweight and breezy fabric, and a flattering A-line cut, this dress is perfect for picnics, parties, or a day out.',
     price: 1999,
-    priceFormatted: '₹1,999',
+    priceFormatted: '1999rs',
     images: [{ id: 'prod_4_img' }],
     sizes: ['S', 'M', 'L'],
   },
@@ -79,7 +80,7 @@ const originalProducts = [
     name: 'Leather Biker Jacket',
     description: 'Channel your inner rebel with this classic leather biker jacket. Crafted from genuine leather, it features an asymmetric zip, multiple pockets, and a tailored fit for a sharp, edgy look.',
     price: 4999,
-    priceFormatted: '₹4,999',
+    priceFormatted: '4999rs',
     images: [{ id: 'prod_5_img' }],
     sizes: ['S', 'M', 'L', 'XL'],
   },
@@ -120,14 +121,19 @@ async function seedDatabase() {
 
         console.log('Starting to seed products...');
         products.forEach(product => {
-            const docRef = collection(db, 'products').doc(product.id);
+            const docRef = doc(db, 'products', product.id);
             batch.set(docRef, product);
         });
 
         await batch.commit();
         console.log('Successfully seeded database with', products.length, 'products.');
+        // The script will exit automatically if there are no more async operations.
+        // If it hangs, we can force exit, but it's better to let it close naturally.
+        process.exit(0);
+
     } catch (error) {
         console.error('Error seeding database:', error);
+        process.exit(1);
     }
 }
 

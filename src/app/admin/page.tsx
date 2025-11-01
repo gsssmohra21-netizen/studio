@@ -222,7 +222,7 @@ export default function AdminPage() {
             name: data.name,
             description: data.description,
             price: data.price,
-            priceFormatted: `₹${data.price.toLocaleString('en-IN')}`,
+            priceFormatted: `${data.price}rs`,
             images: data.images.map((img, index) => (
                 {
                     id: `${productId}_img_${index}`,
