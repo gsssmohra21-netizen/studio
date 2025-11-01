@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import ProductDetailsClient from '@/components/product-details-client';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = getProductById(params.id);
@@ -16,7 +18,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     <div className="bg-background min-h-screen flex flex-col">
        <header className="bg-card border-b sticky top-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center sm:justify-start h-20">
+          <div className="flex items-center justify-between h-20">
             <Link href="/" className="text-3xl font-bold text-primary font-headline">
               KapdaKart
             </Link>
@@ -24,6 +26,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
       </header>
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
+        <div className="mb-6">
+            <Button asChild variant="ghost">
+                <Link href="/">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Products
+                </Link>
+            </Button>
+        </div>
         <div className="grid md:grid-cols-2 gap-8 lg:gap-16">
           <div className="flex justify-center items-start">
              <div className="aspect-[3/4] w-full max-w-md rounded-lg overflow-hidden shadow-lg sticky top-28">
