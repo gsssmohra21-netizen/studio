@@ -1,7 +1,9 @@
-import Link from 'next/link';
+
 import Image from 'next/image';
 import { products } from '@/lib/products';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProductDetailsDialog } from '@/components/product-details-dialog';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -22,26 +24,28 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {products.map((product) => (
-              <Link key={product.id} href={`/products/${product.id}`} className="group block">
-                <Card className="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
-                  <CardHeader className="p-0">
-                    <div className="aspect-[3/4] overflow-hidden">
-                      <Image
-                        src={product.images[0].url}
-                        alt={product.images[0].alt}
-                        width={600}
-                        height={800}
-                        className="object-cover w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-105"
-                        data-ai-hint={product.images[0].hint}
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">{product.name}</CardTitle>
-                    <p className="text-xl font-bold text-primary">{product.priceFormatted}</p>
-                  </CardContent>
-                </Card>
-              </Link>
+              <ProductDetailsDialog key={product.id} product={product}>
+                <div className="group block cursor-pointer">
+                  <Card className="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
+                    <CardHeader className="p-0">
+                      <div className="aspect-[3/4] overflow-hidden">
+                        <Image
+                          src={product.images[0].url}
+                          alt={product.images[0].alt}
+                          width={600}
+                          height={800}
+                          className="object-cover w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-105"
+                          data-ai-hint={product.images[0].hint}
+                        />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">{product.name}</CardTitle>
+                      <p className="text-xl font-bold text-primary">{product.priceFormatted}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </ProductDetailsDialog>
             ))}
           </div>
         </section>
