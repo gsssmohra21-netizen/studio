@@ -47,6 +47,7 @@ export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormPro
     const message = `
 New Order from KapdaKart!
 -------------------------
+Product ID: ${product.id}
 Product: ${product.name}
 Size: ${selectedSize}
 Price: ${product.priceFormatted}
