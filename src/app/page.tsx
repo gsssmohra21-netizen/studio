@@ -64,7 +64,7 @@ export default function Home() {
       </header>
       <main className="flex-grow">
         <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-8 text-center font-headline">
+          <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-12 text-center font-headline">
             Our Collection
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -86,7 +86,7 @@ export default function Home() {
             {!isLoading && products?.map((product) => (
               <ProductDetailsDialog key={product.id} product={product}>
                 <div className="group block cursor-pointer">
-                  <Card className="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
+                  <Card className="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2">
                     <CardHeader className="p-0">
                       <div className="aspect-[3/4] overflow-hidden">
                         {product.images && product.images.length > 0 ? (
@@ -106,7 +106,7 @@ export default function Home() {
                       </div>
                     </CardHeader>
                     <CardContent className="p-4">
-                      <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">{product.name}</CardTitle>
+                      <CardTitle className="text-xl font-headline mb-2 line-clamp-2">{product.name}</CardTitle>
                       <p className="text-xl font-bold text-primary">{product.priceFormatted}</p>
                     </CardContent>
                   </Card>
@@ -127,5 +127,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
