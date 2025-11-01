@@ -1,0 +1,160 @@
+{
+  "entities": {
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a clothing product available in the KapdaKart catalog.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product in a currency (e.g., USD)."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the product image.",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the product."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "price",
+        "imageUrl",
+        "description"
+      ]
+    },
+    "Customer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a customer placing an order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Customer entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the customer."
+        },
+        "address": {
+          "type": "string",
+          "description": "Shipping address of the customer."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "Contact phone number of the customer."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "address",
+        "contactNumber"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents an order placed by a customer for a product.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to Customer. (Relationship: Customer 1:N Order)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "Date and time when the order was placed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "customerId",
+        "productId",
+        "orderDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores information about products available in the KapdaKart catalog.  'productId' is the unique identifier for each product.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "Unique identifier for the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/customers/{customerId}",
+        "definition": {
+          "entityName": "Customer",
+          "schema": {
+            "$ref": "#/backend/entities/Customer"
+          },
+          "description": "Stores customer data. 'customerId' corresponds to the user's unique ID.",
+          "params": [
+            {
+              "name": "customerId",
+              "description": "Unique identifier for the customer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores order information. Includes references to customerId and productId.",
+          "params": [
+            {
+              "name": "orderId",
+              "description": "Unique identifier for the order."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "Given the application's requirements for managing a product catalog and capturing customer order information, the following Firestore structure is recommended. The structure is designed to be simple and secure, aligning with the principles of Authorization Independence, Clarity of Intent, and No Custom Claims. This ensures that security rules are straightforward and maintainable, and that `list` operations are secure.\n\nThe structure leverages path-based ownership for customer data. This ensures that data related to a specific customer is stored under their own user ID, making it easy to implement security rules based on user authentication. The structure also uses standard naming conventions.\n\nThe application primarily requires storing product information and order details. The `products` collection stores the product information.  Customer information is captured in a dedicated collection only at the point of order, and linked to orders via the `customerId` field within the order document.\n\nThis design provides the required data segregation: Customer and product data are separated, and the path-based ownership isolates the customer data, thereby adhering to data segregation strategy."
+  }
+}

@@ -1,0 +1,111 @@
+/**
+ * @fileoverview Firestore Security Rules for KapdaKart.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes security by enforcing strict ownership for customer data and allowing public read access to product and order information. Write access to products and orders is open for prototyping but MUST be secured in production by implementing a suitable access control mechanism, such as role-based access control (RBAC) or attribute-based access control (ABAC).
+ *
+ * Data Structure:
+ * - /products/{productId}: Stores product details. Read access is public, while write access is currently open for prototyping.
+ * - /customers/{customerId}: Stores customer data, with access restricted to the owning user.
+ * - /orders/{orderId}: Stores order information. Read access is public, while write access is currently open for prototyping. Each order includes references to customerId and productId.
+ *
+ * Key Security Decisions:
+ * - Customer data is strictly controlled by the owning user, ensuring privacy and preventing unauthorized access.
+ * - Product and order data have open read access.
+ * - Write access to products and orders is open for prototyping but MUST be secured in production.
+ * - Listing of documents is generally allowed, except for customer data where it is restricted to the owner.
+ *
+ * Denormalization for Authorization:
+ * - The rules leverage path-based ownership for customer data, simplifying authorization checks.
+ * - For product and order data, the absence of an explicit ownership field necessitates caution.
+ *
+ * Structural Segregation:
+ * - Customer data is stored in a dedicated collection, separate from product and order information, to enforce privacy and access control.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Allows public read access to product data and open write access for prototyping.
+     * @path /products/{productId}
+     * @allow get, list: Allows any user to read product information.
+     * @allow create, update, delete: Allows any user to create, update or delete product information (FOR PROTOTYPING ONLY).
+     * @deny create, update, delete: Never. Write rules are set to be true during the prototyping stage.
+     * @principle Open read access with open write access during the prototyping stage for product data.
+     */
+    match /products/{productId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if true; // TODO: Secure in production with appropriate role-based or attribute-based access control.
+      allow update: if true; // TODO: Secure in production with appropriate role-based or attribute-based access control.
+      allow delete: if true; // TODO: Secure in production with appropriate role-based or attribute-based access control.
+    }
+
+    /**
+     * @description Restricts access to customer data to the owning user.
+     * @path /customers/{customerId}
+     * @allow get: Allows the user with ID 'customerId' to read their own data. Example: A user with ID 'user123' can read the document at /customers/user123.
+     * @allow create: Allows a user to create their own customer document. Example: A user with ID 'user456' can create a document at /customers/user456 if it doesn't already exist.
+     * @allow update: Allows a user to update their own customer document. Example: A user with ID 'user789' can update the document at /customers/user789 if it exists.
+     * @allow delete: Allows a user to delete their own customer document. Example: A user with ID 'user101' can delete the document at /customers/user101 if it exists.
+     * @allow list: Allows the user with ID 'customerId' to list their own data.
+     * @deny get: Denies a user from reading another user's customer data. Example: A user with ID 'user123' cannot read the document at /customers/user456.
+     * @deny create: Denies a user from creating a customer document with an ID that does not match their own. Example: A user with ID 'user456' cannot create a document at /customers/user789.
+     * @deny update: Denies a user from updating another user's customer data. Example: A user with ID 'user789' cannot update the document at /customers/user101.
+     * @deny delete: Denies a user from deleting another user's customer data. Example: A user with ID 'user101' cannot delete the document at /customers/user456.
+     * @principle Enforces document ownership for reads and writes in the 'customers' collection.
+     */
+    match /customers/{customerId} {
+      allow get: if isOwner(customerId);
+      allow list: if isOwner(customerId);
+      allow create: if isOwner(customerId);
+      allow update: if isExistingOwner(customerId);
+      allow delete: if isExistingOwner(customerId);
+    }
+
+    /**
+     * @description Allows public read access to order data and open write access for prototyping.
+     * @path /orders/{orderId}
+     * @allow get, list: Allows any user to read order information.
+     * @allow create, update, delete: Allows any user to create, update or delete order information (FOR PROTOTYPING ONLY).
+     * @deny create, update, delete: Never. Write rules are set to be true during the prototyping stage.
+     * @principle Open read access with open write access during the prototyping stage for order data.
+     */
+    match /orders/{orderId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if true; // TODO: Secure in production with appropriate role-based or attribute-based access control.
+      allow update: if true; // TODO: Secure in production with appropriate role-based or attribute-based access control.
+      allow delete: if true; // TODO: Secure in production with appropriate role-based or attribute-based access control.
+    }
+
+    // --- Helper Functions ---
+
+    /**
+     * @description Checks if the user is signed in.
+     * @return {boolean} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the request is made by the owner of the resource.
+     * @param {string} userId The user ID to compare with the request's auth UID.
+     * @return {boolean} True if the user is the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the request is made by the owner of the resource and the resource exists.
+     * @param {string} userId The user ID to compare with the request's auth UID.
+     * @return {boolean} True if the user is the owner and the resource exists, false otherwise.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+  }
+}
