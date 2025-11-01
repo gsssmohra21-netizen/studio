@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import ProductDetailsClient from '@/components/product-details-client';
 import type { Product } from "@/lib/products";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface ProductDetailsDialogProps {
   product: Product;
@@ -24,7 +25,7 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl w-full max-h-[90vh] flex flex-col p-0">
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] flex flex-col md:flex-row p-0 data-[state=open]:h-auto">
         <div className="md:w-1/2 flex-shrink-0 relative">
              <Carousel className="w-full h-full">
                 <CarouselContent>
@@ -51,19 +52,19 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
                 )}
             </Carousel>
         </div>
-        <div className="flex flex-col p-6 sm:p-8 flex-grow overflow-y-auto">
-            <h1 className="text-3xl lg:text-4xl font-bold font-headline text-foreground mb-3">{product.name}</h1>
-            <p className="text-2xl font-bold text-primary mb-4">{product.priceFormatted}</p>
-            <Separator className="my-4" />
-            <div className="prose prose-sm text-muted-foreground leading-relaxed mb-6 max-w-none">
-              <p>{product.description}</p>
+        <ScrollArea className="md:w-1/2">
+            <div className="flex flex-col p-6 sm:p-8 flex-grow">
+                <h1 className="text-3xl lg:text-4xl font-bold font-headline text-foreground mb-3">{product.name}</h1>
+                <p className="text-2xl font-bold text-primary mb-4">{product.priceFormatted}</p>
+                <Separator className="my-4" />
+                <div className="prose prose-sm text-muted-foreground leading-relaxed mb-6 max-w-none">
+                <p>{product.description}</p>
+                </div>
+                
+                <ProductDetailsClient product={product} />
             </div>
-            
-            <ProductDetailsClient product={product} />
-
-          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
 }
-
