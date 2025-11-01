@@ -71,6 +71,15 @@ export const products: Product[] = [
     images: [getImage('prod_4_img')],
     sizes: ['S', 'M', 'L'],
   },
+  {
+    id: 'prod_5',
+    name: 'Leather Biker Jacket',
+    description: 'Channel your inner rebel with this classic leather biker jacket. Crafted from genuine leather, it features an asymmetric zip, multiple pockets, and a tailored fit for a sharp, edgy look.',
+    price: 4999,
+    priceFormatted: '₹4,999',
+    images: [getImage('prod_5_img')],
+    sizes: ['S', 'M', 'L', 'XL'],
+  },
 ];
 
 export const getProductById = (id: string): Product | undefined => {

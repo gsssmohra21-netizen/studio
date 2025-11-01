@@ -23,6 +23,12 @@
       "description": "A light and airy floral summer dress.",
       "imageUrl": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmbG9yYWwlMjBkcmVzc3xlbnwwfHx8fDE3NjE5MDg0MDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "floral dress"
+    },
+    {
+      "id": "prod_5_img",
+      "description": "A stylish black leather jacket.",
+      "imageUrl": "https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsZWF0aGVyJTIwamFja2V0fGVufDB8fHx8MTc2MjI0NjA4NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "leather jacket"
     }
   ]
 }
