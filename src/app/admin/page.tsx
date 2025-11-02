@@ -197,12 +197,24 @@ function ProductList() {
 function OrderList() {
     const firestore = useFirestore();
     const { toast } = useToast();
+    const [searchTerm, setSearchTerm] = useState('');
+
     const ordersCollection = useMemoFirebase(() => {
         if (!firestore) return null;
         return collection(firestore, 'orders');
     }, [firestore]);
 
     const { data: orders, isLoading } = useCollection<Order>(ordersCollection);
+
+    const filteredOrders = useMemoFirebase(() => {
+        if (!orders) return [];
+        if (!searchTerm) return orders;
+        return orders.filter(order => 
+            order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.customerContact.includes(searchTerm)
+        );
+    }, [orders, searchTerm]);
+
 
     const handleStatusChange = (order: Order) => {
         if (!firestore) return;
@@ -218,6 +230,16 @@ function OrderList() {
     return (
         <div className="space-y-4">
              <h2 className="text-2xl font-bold font-headline">Manage Orders</h2>
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                    type="text"
+                    placeholder="Search by customer name or contact..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-full"
+                />
+            </div>
              <div className="border rounded-lg">
                 <div className="grid grid-cols-[1fr,1fr,2fr,1fr] p-4 font-semibold border-b bg-muted/50">
                     <div>Product ID</div>
@@ -226,7 +248,7 @@ function OrderList() {
                     <div className='text-center'>Status</div>
                 </div>
                 {isLoading && <div className='p-4 text-center'>Loading orders...</div>}
-                {!isLoading && orders?.map(order => (
+                {!isLoading && filteredOrders && filteredOrders.map(order => (
                     <div key={order.id} className={`grid grid-cols-[1fr,1fr,2fr,1fr] p-4 items-center border-b last:border-b-0 ${order.isCompleted ? 'bg-green-100/50 dark:bg-green-900/20' : ''}`}>
                         <div className='font-mono text-sm'>{order.productId}</div>
                         <div>
@@ -244,7 +266,7 @@ function OrderList() {
                         </div>
                     </div>
                 ))}
-                 {!isLoading && orders?.length === 0 && (
+                 {!isLoading && filteredOrders?.length === 0 && (
                     <p className="text-muted-foreground text-center p-8">No orders found.</p>
                 )}
              </div>
@@ -637,5 +659,7 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
 
     
