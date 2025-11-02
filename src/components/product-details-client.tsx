@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Product } from '@/lib/products';
@@ -28,13 +29,13 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
   }
 
   return (
-    <>
+    <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-4">Select Size:</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-2">Select Size:</h3>
         <RadioGroup
           value={selectedSize}
           onValueChange={setSelectedSize}
-          className="flex flex-wrap gap-4"
+          className="flex flex-wrap gap-2"
           aria-label="Select size"
         >
           {product.sizes.map((size) => (
@@ -42,9 +43,9 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
               <RadioGroupItem value={size} id={`size-${size}`} className="sr-only" />
               <Label
                 htmlFor={`size-${size}`}
-                className={`flex items-center justify-center rounded-md border text-sm font-medium h-10 w-16 cursor-pointer transition-colors
+                className={`flex items-center justify-center rounded-md border text-xs font-medium h-8 w-12 cursor-pointer transition-colors
                   ${selectedSize === size
-                    ? 'bg-primary text-primary-foreground border-primary ring-2 ring-primary ring-offset-2'
+                    ? 'bg-primary text-primary-foreground border-primary ring-2 ring-primary ring-offset-1'
                     : 'bg-card hover:bg-accent/80'
                   }`}
               >
@@ -59,7 +60,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
         <DialogTrigger asChild>
           <Button 
             size="lg" 
-            className="mt-8 w-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg py-7 shadow-lg transform transition-transform hover:scale-105"
+            className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-md py-6 shadow-lg transform transition-transform hover:scale-105"
             onClick={handleOrderClick}
             aria-label="Order now"
           >
@@ -74,6 +75,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
           {selectedSize && <OrderForm product={product} selectedSize={selectedSize} setDialogOpen={setIsDialogOpen} />}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
+

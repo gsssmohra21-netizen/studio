@@ -11,8 +11,6 @@ import {
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from '@/components/ui/separator';
@@ -114,18 +112,19 @@ function ProductContent({ product }: { product: Product }) {
 
 export function ProductDetailsDialog({ product, children }: ProductDetailsDialogProps) {
   const isMobile = useIsMobile();
+  const [open, setOpen] = React.useState(false);
 
   const hasMedia = (product.videoUrl && product.videoUrl.length > 0) || product.images.length > 0;
 
   if (isMobile) {
     return (
-        <Sheet>
-            <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent side="bottom" className="w-full h-[90%] p-0 flex flex-col">
+        <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild onClick={() => setOpen(true)}>{children}</SheetTrigger>
+            <SheetContent side="bottom" className="w-full p-0 flex flex-col max-h-[95vh] rounded-t-lg">
                 <ScrollArea className="flex-1">
-                    <div className="w-full max-w-md mx-auto">
+                    <div className="pb-6">
                         {hasMedia ? (
-                            <Carousel className="w-full">
+                            <Carousel className="w-full rounded-t-lg">
                                 <CarouselContent>
                                      {product.videoUrl && (
                                         <CarouselItem>
@@ -157,27 +156,24 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
                                 </CarouselContent>
                                 {(product.images.length + (product.videoUrl ? 1 : 0)) > 1 && (
                                     <>
-                                        <CarouselPrevious className="left-2" />
-                                        <CarouselNext className="right-2" />
+                                        <CarouselPrevious className="left-2 bg-background/50 hover:bg-background/80" />
+                                        <CarouselNext className="right-2 bg-background/50 hover:bg-background/80" />
                                     </>
                                 )}
                             </Carousel>
                         ) : (
-                             <div className="aspect-[3/4] w-full bg-muted flex items-center justify-center">
+                             <div className="aspect-[3/4] w-full bg-muted flex items-center justify-center rounded-t-lg">
                                 <span className="text-muted-foreground">No Media</span>
                             </div>
                         )}
-                         <div className="p-6">
-                            <h1 className="text-2xl font-bold font-headline text-foreground mb-2">{product.name}</h1>
-                            <div className="flex items-baseline gap-2 mb-4">
-                                <p className="text-xl font-bold text-primary">₹{product.salePrice}</p>
-                                <p className="text-md text-muted-foreground line-through">₹{product.originalPrice}</p>
+                         <div className="p-4 space-y-3">
+                            <h1 className="text-xl font-bold font-headline text-foreground line-clamp-2">{product.name}</h1>
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-lg font-bold text-primary">₹{product.salePrice}</p>
+                                <p className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</p>
                             </div>
-                            <Separator className="my-4" />
-                            <div className="prose prose-sm text-muted-foreground leading-relaxed mb-6 max-w-none">
-                                <p>{product.description}</p>
-                            </div>
-                            
+                            <p className="text-xs text-muted-foreground leading-snug line-clamp-2">{product.description}</p>
+                            <Separator className="my-3" />
                             <ProductDetailsClient product={product} />
                         </div>
                     </div>
@@ -188,8 +184,8 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild onClick={() => setOpen(true)}>
         {children}
       </DialogTrigger>
       <DialogContent className="max-w-4xl w-full max-h-[90vh] flex flex-col md:flex-row p-0">
@@ -198,3 +194,4 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
     </Dialog>
   );
 }
+
