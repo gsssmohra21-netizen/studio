@@ -3,8 +3,9 @@ export type Product = {
   id: string;
   name: string;
   description: string;
-  price: number;
-  priceFormatted: string;
+  originalPrice: number;
+  salePrice: number;
+  priceFormatted: string; // This will now be based on salePrice
   images: {
       id: string;
       url: string;

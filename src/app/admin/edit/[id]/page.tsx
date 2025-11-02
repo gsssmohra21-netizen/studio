@@ -22,7 +22,8 @@ import { ArrowLeft, Instagram, PlusCircle, Trash2 } from 'lucide-react';
 const productSchema = z.object({
   name: z.string().min(3, 'Product name is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.coerce.number().min(0, 'Price must be a positive number'),
+  originalPrice: z.coerce.number().min(0, 'Original price must be a positive number'),
+  salePrice: z.coerce.number().min(0, 'Sale price must be a positive number'),
   images: z.array(z.object({ url: z.string().url('Please enter a valid image URL') })).min(1, 'Please add at least one image.'),
   sizes: z.string().min(1, 'Please enter at least one size (comma-separated)'),
   productLink: z.string().url('Please enter a valid URL for the product link').optional().or(z.literal('')),
@@ -60,7 +61,8 @@ export default function EditProductPage() {
       form.reset({
         name: product.name,
         description: product.description,
-        price: product.price,
+        originalPrice: product.originalPrice,
+        salePrice: product.salePrice,
         images: product.images.map(img => ({ url: img.url })),
         sizes: product.sizes.join(', '),
         productLink: product.productLink || '',
@@ -87,8 +89,9 @@ export default function EditProductPage() {
         const updatedProduct = {
             name: data.name,
             description: data.description,
-            price: data.price,
-            priceFormatted: `${data.price}rs`,
+            originalPrice: data.originalPrice,
+            salePrice: data.salePrice,
+            priceFormatted: `₹${data.salePrice}`,
             images: data.images.map((img, index) => (
                 {
                     id: `${id}_img_${index}`,
@@ -236,19 +239,34 @@ export default function EditProductPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price (INR)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="e.g., 999" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="originalPrice"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Original Price (₹)</FormLabel>
+                        <FormControl>
+                        <Input type="number" placeholder="e.g., 1299" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="salePrice"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Sale Price (₹)</FormLabel>
+                        <FormControl>
+                        <Input type="number" placeholder="e.g., 999" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              </div>
               <div>
                 <FormLabel>Images</FormLabel>
                 <div className="space-y-4 pt-2">

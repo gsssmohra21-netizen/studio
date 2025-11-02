@@ -27,7 +27,8 @@ import type { SiteSetting } from '@/lib/settings';
 const productSchema = z.object({
   name: z.string().min(3, 'Product name is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.coerce.number().min(0, 'Price must be a positive number'),
+  originalPrice: z.coerce.number().min(0, 'Original price must be a positive number'),
+  salePrice: z.coerce.number().min(0, 'Sale price must be a positive number'),
   images: z.array(z.object({ url: z.string().url('Please enter a valid image URL') })).min(1, 'Please add at least one image.'),
   sizes: z.string().min(1, 'Please enter at least one size (comma-separated)'),
   productLink: z.string().url('Please enter a valid URL for the product link').optional().or(z.literal('')),
@@ -154,7 +155,10 @@ function ProductList() {
                         </CardHeader>
                         <CardContent className="p-4 flex-grow">
                             <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
-                            <p className="text-primary font-semibold">{product.priceFormatted}</p>
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-primary font-semibold">₹{product.salePrice}</p>
+                                <p className="text-muted-foreground line-through text-sm">₹{product.originalPrice}</p>
+                            </div>
                         </CardContent>
                         <CardFooter className="p-4 pt-0 flex justify-end gap-2">
                              <Button asChild variant="outline" size="sm">
@@ -364,7 +368,8 @@ export default function AdminPage() {
     defaultValues: {
       name: '',
       description: '',
-      price: 0,
+      originalPrice: 0,
+      salePrice: 0,
       images: [{ url: '' }],
       sizes: '',
       productLink: '',
@@ -408,8 +413,9 @@ export default function AdminPage() {
             id: productId,
             name: data.name,
             description: data.description,
-            price: data.price,
-            priceFormatted: `${data.price}rs`,
+            originalPrice: data.originalPrice,
+            salePrice: data.salePrice,
+            priceFormatted: `₹${data.salePrice}`,
             images: data.images.map((img, index) => (
                 {
                     id: `${productId}_img_${index}`,
@@ -559,19 +565,34 @@ export default function AdminPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={productForm.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price (INR)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="e.g., 999" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                    control={productForm.control}
+                    name="originalPrice"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Original Price (₹)</FormLabel>
+                        <FormControl>
+                        <Input type="number" placeholder="e.g., 1299" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={productForm.control}
+                    name="salePrice"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Sale Price (₹)</FormLabel>
+                        <FormControl>
+                        <Input type="number" placeholder="e.g., 999" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              </div>
               
               <div>
                 <FormLabel>Images</FormLabel>

@@ -192,7 +192,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
           <div className="flex flex-col pt-4">
             <h1 className="text-4xl lg:text-5xl font-bold font-headline text-foreground mb-4">{product.name}</h1>
-            <p className="text-3xl font-bold text-primary mb-6">{product.priceFormatted}</p>
+            <div className="flex items-baseline gap-2 mb-6">
+                <p className="text-3xl font-bold text-primary">₹{product.salePrice}</p>
+                <p className="text-xl text-muted-foreground line-through">₹{product.originalPrice}</p>
+            </div>
             <Separator className="my-6" />
             <p className="text-muted-foreground leading-relaxed mb-8">{product.description}</p>
             

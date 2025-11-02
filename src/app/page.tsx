@@ -131,7 +131,10 @@ export default function Home() {
                     </CardHeader>
                     <CardContent className="p-4">
                       <CardTitle className="text-xl font-headline mb-2 line-clamp-2">{product.name}</CardTitle>
-                      <p className="text-xl font-bold text-primary">{product.priceFormatted}</p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-xl font-bold text-primary">₹{product.salePrice}</p>
+                        <p className="text-md text-muted-foreground line-through">₹{product.originalPrice}</p>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>

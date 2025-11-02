@@ -51,7 +51,7 @@ New Order from Darpan Wears!
 Product ID: ${product.id}
 Product: ${product.name}
 Size: ${selectedSize}
-Price: ${product.priceFormatted}
+Price: ₹${product.salePrice}
 Payment Method: ${values.paymentMethod === 'cash' ? 'Cash on Delivery' : 'Online Payment'}
 -------------------------
 Customer Details:
@@ -76,7 +76,11 @@ Address: ${values.address}
             <div className="p-4 bg-muted/50 rounded-lg border">
                 <p><strong>Product:</strong> {product.name}</p>
                 <p><strong>Size:</strong> {selectedSize}</p>
-                <p><strong>Price:</strong> <span className="font-bold text-primary">{product.priceFormatted}</span></p>
+                 <div className="flex items-baseline gap-2">
+                    <p><strong>Price:</strong></p>
+                    <p className="font-bold text-primary">₹{product.salePrice}</p>
+                    <p className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</p>
+                </div>
             </div>
 
             <FormField

@@ -14,9 +14,13 @@
           "type": "string",
           "description": "Name of the product."
         },
-        "price": {
+        "originalPrice": {
           "type": "number",
-          "description": "Price of the product in a currency (e.g., USD)."
+          "description": "The original price of the product."
+        },
+        "salePrice": {
+          "type": "number",
+          "description": "The sale price of the product."
         },
         "imageUrl": {
           "type": "string",
@@ -36,7 +40,8 @@
       "required": [
         "id",
         "name",
-        "price",
+        "originalPrice",
+        "salePrice",
         "imageUrl",
         "description"
       ]

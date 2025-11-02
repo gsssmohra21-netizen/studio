@@ -96,7 +96,10 @@ function ProductContent({ product }: { product: Product }) {
             <ScrollArea className="md:w-1/2 w-full">
                 <div className="p-6 sm:p-8">
                     <h1 className="text-3xl lg:text-4xl font-bold font-headline text-foreground mb-3">{product.name}</h1>
-                    <p className="text-2xl font-bold text-primary mb-4">{product.priceFormatted}</p>
+                    <div className="flex items-baseline gap-2 mb-4">
+                        <p className="text-2xl font-bold text-primary">₹{product.salePrice}</p>
+                        <p className="text-lg text-muted-foreground line-through">₹{product.originalPrice}</p>
+                    </div>
                     <Separator className="my-4" />
                     <div className="prose prose-sm text-muted-foreground leading-relaxed mb-6 max-w-none">
                     <p className="line-clamp-4 md:line-clamp-none">{product.description}</p>
@@ -166,7 +169,10 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
                         )}
                          <div className="p-6">
                             <h1 className="text-2xl font-bold font-headline text-foreground mb-2">{product.name}</h1>
-                            <p className="text-xl font-bold text-primary mb-4">{product.priceFormatted}</p>
+                            <div className="flex items-baseline gap-2 mb-4">
+                                <p className="text-xl font-bold text-primary">₹{product.salePrice}</p>
+                                <p className="text-md text-muted-foreground line-through">₹{product.originalPrice}</p>
+                            </div>
                             <Separator className="my-4" />
                             <div className="prose prose-sm text-muted-foreground leading-relaxed mb-6 max-w-none">
                                 <p>{product.description}</p>
