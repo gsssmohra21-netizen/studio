@@ -75,7 +75,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </div>
                 <div className="grid md:grid-cols-2 gap-8 lg:gap-16">
                     <div className="flex justify-center items-start">
-                        <div className="aspect-[3/4] w-full max-w-md rounded-lg overflow-hidden shadow-lg sticky top-28">
+                        <div className="aspect-square w-full max-w-md rounded-lg overflow-hidden shadow-lg sticky top-28">
                            <Skeleton className="w-full h-full" />
                         </div>
                     </div>
@@ -162,12 +162,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         )}
                         {product.images.map((image, index) => (
                             <CarouselItem key={image.id}>
-                            <div className="aspect-[3/4]">
+                            <div className="aspect-square">
                                 <Image
                                 src={image.url}
                                 alt={image.alt}
                                 width={600}
-                                height={800}
+                                height={600}
                                 className="object-contain w-full h-full"
                                 data-ai-hint={image.hint}
                                 priority={index === 0 && !product.videoUrl}
@@ -184,7 +184,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         )}
                     </Carousel>
                 ) : (
-                    <div className="aspect-[3/4] w-full max-w-md rounded-lg overflow-hidden shadow-lg sticky top-28 bg-muted flex items-center justify-center">
+                    <div className="aspect-square w-full max-w-md rounded-lg overflow-hidden shadow-lg sticky top-28 bg-muted flex items-center justify-center">
                         <span className="text-muted-foreground">No Media</span>
                     </div>
                 )}

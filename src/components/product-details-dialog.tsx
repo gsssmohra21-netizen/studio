@@ -65,7 +65,7 @@ function ProductContent({ product }: { product: Product }) {
                             )}
                             {product.images.map((image, index) => (
                             <CarouselItem key={image.id}>
-                                <div className="aspect-[3/4] w-full relative">
+                                <div className="aspect-square w-full relative">
                                     <Image
                                         src={image.url}
                                         alt={image.alt}
@@ -86,7 +86,7 @@ function ProductContent({ product }: { product: Product }) {
                         )}
                     </Carousel>
                  ) : (
-                    <div className="aspect-[3/4] w-full bg-muted flex items-center justify-center">
+                    <div className="aspect-square w-full bg-muted flex items-center justify-center">
                         <span className="text-muted-foreground">No Media</span>
                     </div>
                  )}
@@ -141,7 +141,7 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
                                     )}
                                     {product.images.map((image, index) => (
                                     <CarouselItem key={image.id}>
-                                        <div className="aspect-[3/4] w-full relative">
+                                        <div className="aspect-square w-full relative">
                                             <Image
                                                 src={image.url}
                                                 alt={image.alt}
@@ -162,7 +162,7 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
                                 )}
                             </Carousel>
                         ) : (
-                             <div className="aspect-[3/4] w-full bg-muted flex items-center justify-center rounded-t-lg">
+                             <div className="aspect-square w-full bg-muted flex items-center justify-center rounded-t-lg">
                                 <span className="text-muted-foreground">No Media</span>
                             </div>
                         )}
@@ -194,4 +194,3 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
     </Dialog>
   );
 }
-

@@ -96,7 +96,7 @@ export default function Home() {
                 <div key={i} className="group block">
                     <Card className="h-full overflow-hidden">
                         <CardHeader className="p-0">
-                            <div className="aspect-[3/4] overflow-hidden">
+                            <div className="aspect-square overflow-hidden">
                                 <Skeleton className="w-full h-full" />
                             </div>
                         </CardHeader>
@@ -112,13 +112,13 @@ export default function Home() {
                 <div className="group block cursor-pointer">
                   <Card className="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2">
                     <CardHeader className="p-0">
-                      <div className="aspect-[3/4] overflow-hidden">
+                      <div className="aspect-square overflow-hidden">
                         {product.images && product.images.length > 0 ? (
                            <Image
                             src={product.images[0].url}
                             alt={product.images[0].alt}
                             width={600}
-                            height={800}
+                            height={600}
                             className="object-contain w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-105"
                             data-ai-hint={product.images[0].hint}
                           />
