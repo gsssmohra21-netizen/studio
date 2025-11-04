@@ -86,7 +86,7 @@ function HeroCarousel({ products, isLoading }: { products: Product[] | null, isL
     }
 
     return (
-        <section className="w-full mb-12 border rounded-lg overflow-hidden shadow-sm">
+        <section className="w-full mb-12 border rounded-lg overflow-hidden shadow-sm relative">
             <Carousel
                 plugins={[plugin.current]}
                 className="w-full"
@@ -112,6 +112,11 @@ function HeroCarousel({ products, isLoading }: { products: Product[] | null, isL
                     ))}
                 </CarouselContent>
             </Carousel>
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-headline font-bold text-white text-center shadow-lg p-4">
+                    Welcome to Darpan Wears
+                </h2>
+            </div>
         </section>
     );
 }
@@ -157,9 +162,6 @@ export default function Home() {
                 </Link>
             </div>
              <div className="flex items-center gap-2">
-              <Button variant="ghost" asChild>
-                <Link href="/admin/login">Admin Panel</Link>
-              </Button>
             </div>
           </div>
         </div>
