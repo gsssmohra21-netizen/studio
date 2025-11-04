@@ -13,8 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 
-function OrderButton({ product }: { product: Product }) {
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(product.sizes[0]);
+function OrderButton({ product, selectedSize: passedSize }: { product: Product; selectedSize?: string }) {
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(passedSize || product.sizes[0]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -66,14 +66,6 @@ function ProductDetailsClient({ product }: { product: Product }) {
   
   const handleSizeChange = (size: string) => {
     setSelectedSize(size);
-    // This is a bit of a hack to pass the selected size up to the OrderButton
-    // A better solution would involve a shared state manager (like Zustand or Context)
-    // but for this simple case, we can find the radio group in the parent and update it.
-    const parentOrderButtonRadioGroup = document.querySelector(`[data-product-id="${product.id}"] [aria-label="Select size"]`);
-    if(parentOrderButtonRadioGroup) {
-      const radioToCheck = parentOrderButtonRadioGroup.querySelector(`[value="${size}"]`) as HTMLButtonElement | null;
-      radioToCheck?.click();
-    }
   }
 
   return (
@@ -111,7 +103,7 @@ function ProductDetailsClient({ product }: { product: Product }) {
          </div>
        )}
 
-      {!isMobile && <OrderButton product={product} />}
+      {!isMobile && <OrderButton product={product} selectedSize={selectedSize} />}
     </div>
   );
 }
@@ -119,4 +111,3 @@ function ProductDetailsClient({ product }: { product: Product }) {
 ProductDetailsClient.OrderButton = OrderButton;
 
 export default ProductDetailsClient;
-
