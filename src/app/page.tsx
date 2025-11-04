@@ -20,6 +20,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { CustomerDetailsForm, type CustomerDetails } from '@/components/customer-details-form';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DarpanAssistant } from '@/components/darpan-assistant';
+import { Separator } from '@/components/ui/separator';
 
 
 function SiteFooter() {
@@ -363,6 +365,11 @@ export default function Home() {
                 )}
             </div>
           )}
+        </section>
+
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <Separator className="my-12" />
+            <DarpanAssistant />
         </section>
       </main>
       <SiteFooter />
