@@ -89,7 +89,7 @@ function HeroCarousel() {
             {image && (
                 <Image
                     src={image.imageUrl}
-                    alt={image.title}
+                    alt="Hero background"
                     fill
                     className="object-cover"
                     priority
@@ -101,16 +101,14 @@ function HeroCarousel() {
                         className="text-5xl sm:text-6xl md:text-7xl font-headline font-bold" 
                         style={{ textShadow: '2px 4px 10px rgba(0,0,0,0.8)' }}
                     >
-                        {image ? image.title : "Welcome to Darpan Wears"}
+                        Welcome to Darpan Wears
                     </h2>
-                    {image?.subtitle && (
-                        <p 
-                            className="mt-4 text-lg sm:text-xl md:text-2xl font-body"
-                            style={{ textShadow: '1px 2px 5px rgba(0,0,0,0.8)' }}
-                        >
-                            {image.subtitle}
-                        </p>
-                    )}
+                    <p 
+                        className="mt-4 text-lg sm:text-xl md:text-2xl font-body"
+                        style={{ textShadow: '1px 2px 5px rgba(0,0,0,0.8)' }}
+                    >
+                        Your one-stop shop for the latest fashion.
+                    </p>
                     <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 pointer-events-auto">
                         <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full shadow-lg transform transition-transform hover:scale-105" onClick={scrollToProducts}>
                             <ShoppingCart className="mr-3" />
