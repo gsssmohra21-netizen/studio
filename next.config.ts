@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -41,6 +42,14 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/notification.mp3',
+        destination: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c89b3f4e42.mp3',
+      },
+    ]
   },
 };
 

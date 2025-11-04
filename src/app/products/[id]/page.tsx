@@ -119,6 +119,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <Image src="https://i.postimg.cc/bvypQBy5/IMG-20251031-224943-060.webp" alt="Darpan Wears Logo" width={48} height={48} className="rounded-full" />
                 <span>Darpan Wears</span>
                 </Link>
+                <Image src="https://i.postimg.cc/wTjXzYpT/indian-flag-waving.gif" alt="Indian Flag" width={40} height={27} className="hidden sm:block" />
                  <Link
                     href="https://www.instagram.com/darpan_wears?igsh=a2pkYXhpajVwNnR3"
                     target="_blank"

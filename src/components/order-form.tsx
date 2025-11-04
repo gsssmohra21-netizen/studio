@@ -23,6 +23,7 @@ import { collection, doc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import type { PaymentSetting } from "@/lib/settings";
 import { Skeleton } from "./ui/skeleton";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -42,6 +43,15 @@ interface OrderFormProps {
 export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
+  
+  // Create an audio object that can be played
+  useEffect(() => {
+    const audio = new Audio('/notification.mp3');
+    audio.load(); // Preload the sound
+    (window as any).playNotificationSound = () => {
+        audio.play().catch(error => console.error("Audio play failed:", error));
+    };
+  }, []);
 
   const paymentSettingsRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -122,8 +132,17 @@ Address: ${values.address}
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
     window.open(whatsappUrl, '_blank');
+
+    // 3. Play sound and show toast
+    if((window as any).playNotificationSound) {
+        (window as any).playNotificationSound();
+    }
+    toast({
+        title: "✅ Order Sent!",
+        description: "Your order has been sent. We will contact you shortly.",
+    });
     
-    // 3. Close the dialog
+    // 4. Close the dialog
     setDialogOpen(false);
   }
 
