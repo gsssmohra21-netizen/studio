@@ -14,8 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import type { Product } from "@/lib/products";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { addDocumentNonBlocking, useDoc, useFirestore, useMemoFirebase } from "@/firebase";
@@ -23,12 +21,13 @@ import { collection, doc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import type { PaymentSetting } from "@/lib/settings";
 import { Skeleton } from "./ui/skeleton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { CustomerDetails } from "./customer-details-form";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { Terminal } from "lucide-react";
+
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  phone: z.string().regex(/^\+?[1-9][0-9]{7,14}$/, { message: "Please enter a valid phone number (e.g., +919876543210)." }),
-  address: z.string().min(10, { message: "Address must be at least 10 characters." }),
   paymentMethod: z.enum(["cash", "online"], {
     required_error: "You need to select a payment method.",
   }),
@@ -41,6 +40,7 @@ interface OrderFormProps {
 }
 
 export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormProps) {
+  const [customerDetails, setCustomerDetails] = useState<CustomerDetails | null>(null);
   const firestore = useFirestore();
   const { toast } = useToast();
   
@@ -51,8 +51,18 @@ export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormPro
 
   const { data: paymentSettings, isLoading: isLoadingPaymentSettings } = useDoc<PaymentSetting>(paymentSettingsRef);
 
-  // Combines global setting with product-specific setting.
-  const isGlobalCodEnabled = paymentSettings?.isCashOnDeliveryEnabled ?? true; // Default to true if not set
+  useEffect(() => {
+    try {
+        const savedDetails = localStorage.getItem('customerDetails');
+        if (savedDetails) {
+            setCustomerDetails(JSON.parse(savedDetails));
+        }
+    } catch (error) {
+        console.error("Could not parse customer details from localStorage for order form", error);
+    }
+  }, []);
+
+  const isGlobalCodEnabled = paymentSettings?.isCashOnDeliveryEnabled ?? true;
   const isProductCodAvailable = product.isCashOnDeliveryAvailable ?? true;
   const isFinalCodEnabled = isGlobalCodEnabled && isProductCodAvailable;
 
@@ -60,15 +70,27 @@ export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormPro
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      phone: "",
-      address: "",
       paymentMethod: isFinalCodEnabled ? undefined : "online",
     },
   });
 
+  useEffect(() => {
+    if (!isFinalCodEnabled && form.getValues('paymentMethod') !== 'online') {
+        form.setValue('paymentMethod', 'online');
+    }
+  }, [isFinalCodEnabled, form]);
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-     // 1. Save order to Firestore
+    if (!customerDetails) {
+        toast({
+            variant: 'destructive',
+            title: 'Customer details are missing!',
+            description: 'Please refresh and enter your details to proceed.',
+        });
+        return;
+    }
+
     if (firestore) {
         try {
             const ordersCollectionRef = collection(firestore, 'orders');
@@ -76,23 +98,21 @@ export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormPro
             const newOrder = {
                 id: newDocRef.id,
                 productId: product.id,
-                customerName: values.name,
-                customerContact: values.phone,
-                customerAddress: values.address,
+                customerName: customerDetails.name,
+                customerContact: customerDetails.phone,
+                customerAddress: customerDetails.address,
                 orderDate: new Date().toISOString(),
                 isCompleted: false,
                 completedDate: "",
-                productDetails: { // Optional: for easier reference in admin panel
+                productDetails: {
                     name: product.name,
                     price: product.salePrice,
                     size: selectedSize
                 }
             };
-            // Use a non-blocking write
             await addDocumentNonBlocking(newDocRef, newOrder);
         } catch (error) {
             console.error("Error saving order to Firestore:", error);
-            // Optionally notify user of failure, though we proceed to WhatsApp anyway
             toast({
                 variant: 'destructive',
                 title: 'Order could not be saved automatically',
@@ -101,7 +121,6 @@ export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormPro
         }
     }
 
-    // 2. Open WhatsApp
     const message = `
 New Order from Darpan Wears!
 -------------------------
@@ -112,9 +131,9 @@ Price: ₹${product.salePrice}
 Payment Method: ${values.paymentMethod === 'cash' ? 'Cash on Delivery' : 'Online Payment'}
 -------------------------
 Customer Details:
-Name: ${values.name}
-Phone: ${values.phone}
-Address: ${values.address}
+Name: ${customerDetails.name}
+Phone: ${customerDetails.phone}
+Address: ${customerDetails.address}
     `;
 
     const whatsappNumber = "919332307996";
@@ -123,7 +142,6 @@ Address: ${values.address}
 
     window.open(whatsappUrl, '_blank');
 
-    // 3. Play sound and show toast
     const audio = new Audio('/notification.mp3');
     audio.play().catch(e => console.error("Audio play failed", e));
 
@@ -132,7 +150,6 @@ Address: ${values.address}
         description: "Your order has been sent. We will contact you shortly.",
     });
     
-    // 4. Close the dialog
     setDialogOpen(false);
   }
 
@@ -150,6 +167,18 @@ Address: ${values.address}
                 </div>
             </div>
 
+            {customerDetails && (
+                <Alert>
+                    <Terminal className="h-4 w-4" />
+                    <AlertTitle>Confirm Your Details</AlertTitle>
+                    <AlertDescription className="text-xs">
+                        <p><strong>Name:</strong> {customerDetails.name}</p>
+                        <p><strong>Contact:</strong> {customerDetails.phone}</p>
+                        <p><strong>Address:</strong> {customerDetails.address}</p>
+                    </AlertDescription>
+                </Alert>
+            )}
+
             {isLoadingPaymentSettings ? (
                 <Skeleton className="h-20 w-full" />
             ) : (
@@ -161,13 +190,8 @@ Address: ${values.address}
                         <FormLabel>Payment Method</FormLabel>
                         <FormControl>
                             <RadioGroup
-                            onValueChange={(value) => {
-                                field.onChange(value);
-                                if (value === 'online') {
-                                    // You can add logic here if needed for online payments
-                                }
-                            }}
-                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            value={field.value}
                             className="flex flex-col space-y-1"
                             >
                             {isFinalCodEnabled && (
@@ -195,48 +219,6 @@ Address: ${values.address}
                     )}
                     />
             )}
-
-           
-
-            <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Full Name</FormLabel>
-                <FormControl>
-                    <Input placeholder="e.g., Ramesh Kumar" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>WhatsApp Number</FormLabel>
-                <FormControl>
-                    <Input placeholder="e.g., +919876543210" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Full Address</FormLabel>
-                <FormControl>
-                    <Textarea placeholder="e.g., House No, Street, City, State, Pincode" className="resize-none" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
         </div>
         <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
             Send Order on WhatsApp

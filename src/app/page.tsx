@@ -11,11 +11,13 @@ import { collection, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Instagram, Search, PackageSearch, Megaphone, ShoppingCart, HelpCircle, Shield } from 'lucide-react';
 import type { SiteSetting, AnnouncementSetting, HeroImage } from '@/lib/settings';
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Autoplay from "embla-carousel-autoplay";
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CustomerDetailsForm, type CustomerDetails } from '@/components/customer-details-form';
 
 
 function SiteFooter() {
@@ -157,6 +159,9 @@ function HeroCarousel() {
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [customerDetails, setCustomerDetails] = useState<CustomerDetails | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+
   const firestore = useFirestore();
   const productsCollection = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -164,6 +169,20 @@ export default function Home() {
   }, [firestore]);
 
   const { data: products, isLoading } = useCollection<Product>(productsCollection);
+
+  useEffect(() => {
+    try {
+        const savedDetails = localStorage.getItem('customerDetails');
+        if (savedDetails) {
+            setCustomerDetails(JSON.parse(savedDetails));
+        } else {
+            setIsCustomerModalOpen(true);
+        }
+    } catch (error) {
+        console.error("Could not parse customer details from localStorage", error);
+        setIsCustomerModalOpen(true);
+    }
+  }, []);
 
   const filteredProducts = useMemo(() => {
     if (!products) return [];
@@ -202,6 +221,18 @@ export default function Home() {
       </header>
       <main className="flex-grow">
         
+        <Dialog open={isCustomerModalOpen} onOpenChange={setIsCustomerModalOpen}>
+            <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => e.preventDefault()}>
+                 <DialogHeader>
+                    <DialogTitle className="text-2xl font-headline">Welcome to Darpan Wears!</DialogTitle>
+                    <DialogDescription>
+                        Please enter your details to continue shopping. This will make ordering faster!
+                    </DialogDescription>
+                </DialogHeader>
+                <CustomerDetailsForm setCustomerDetails={setCustomerDetails} setIsOpen={setIsCustomerModalOpen} />
+            </DialogContent>
+        </Dialog>
+
         <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           
           <div className="mb-12 max-w-md mx-auto">
