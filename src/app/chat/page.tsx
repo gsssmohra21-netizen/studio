@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { darpanAssistant } from "@/ai/flows/darpan-flow";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, Loader2, Send, ArrowLeft } from "lucide-react";
+import { Bot, Loader2, Send, ArrowLeft, Paperclip } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Message = {
     sender: 'user' | 'ai';
     text: string;
+    imageUrl?: string;
 };
 
 export default function ChatPage() {
@@ -20,6 +22,45 @@ export default function ChatPage() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageUrl = e.target?.result as string;
+                // Add the image to messages to be displayed
+                const userMessage: Message = { sender: 'user', text: input || 'Find this product', imageUrl };
+                setMessages(prev => [...prev, userMessage]);
+                setInput('');
+                setIsLoading(true);
+                // Now call the AI
+                callAIAssistant(input || 'Find this product', imageUrl);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    
+    const callAIAssistant = async (question: string, imageUrl?: string) => {
+        try {
+            const result = await darpanAssistant({ question, photoDataUri: imageUrl });
+            const aiMessage: Message = { sender: 'ai', text: result.answer };
+            setMessages(prev => [...prev, aiMessage]);
+        } catch (error) {
+            console.error("AI Assistant Error:", error);
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: "Darpan 2.0 is having a little trouble. Please try again in a moment.",
+            });
+            // Optional: remove the user's message if AI fails
+             setMessages(prev => prev.slice(0, prev.length -1));
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,21 +71,7 @@ export default function ChatPage() {
         setInput('');
         setIsLoading(true);
 
-        try {
-            const result = await darpanAssistant({ question: input });
-            const aiMessage: Message = { sender: 'ai', text: result.answer };
-            setMessages(prev => [...prev, aiMessage]);
-        } catch (error) {
-            console.error("AI Assistant Error:", error);
-            toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong.",
-                description: "Darpan 2.0 is having a little trouble. Please try again in a moment.",
-            });
-            setMessages(prev => prev.slice(0, prev.length -1));
-        } finally {
-            setIsLoading(false);
-        }
+        callAIAssistant(input);
     };
 
     return (
@@ -71,13 +98,18 @@ export default function ChatPage() {
                      <div className="flex justify-start">
                         <div className="rounded-lg px-4 py-2 bg-muted flex items-center gap-2">
                            <Bot className="h-5 w-5" />
-                           <span>Hello! How can I help you with your shopping today?</span>
+                           <span>Hello! How can I help you? You can also upload an image of a product you're looking for.</span>
                         </div>
                     </div>
                     {messages.map((msg, index) => (
                         <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`rounded-lg px-4 py-2 max-w-sm ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                                <p className="whitespace-pre-wrap">{msg.text}</p>
+                                {msg.imageUrl && (
+                                     <div className="mb-2">
+                                        <Image src={msg.imageUrl} alt="User upload" width={200} height={200} className="rounded-md"/>
+                                     </div>
+                                )}
+                                {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
                             </div>
                         </div>
                     ))}
@@ -92,11 +124,16 @@ export default function ChatPage() {
                 </div>
             </ScrollArea>
             <div className="border-t bg-card">
-                 <form onSubmit={handleSend} className="flex gap-2 p-4 max-w-2xl mx-auto">
+                 <form onSubmit={handleSend} className="flex gap-2 p-4 max-w-2xl mx-auto items-center">
+                    <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                     <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
+                        <Paperclip className="h-5 w-5" />
+                        <span className="sr-only">Attach Image</span>
+                    </Button>
                     <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask about our products, how to order, etc..."
+                        placeholder="Ask a question or upload an image..."
                         disabled={isLoading}
                         className="h-12 text-base"
                     />

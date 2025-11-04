@@ -14,7 +14,13 @@ import { initializeFirebase } from '@/firebase';
 import type { Product } from '@/lib/products';
 
 const DarpanAssistantInputSchema = z.object({
-  question: z.string().describe('The user\'s question for the assistant.'),
+  question: z.string().describe("The user's question for the assistant."),
+  photoDataUri: z
+    .string()
+    .optional()
+    .describe(
+      "A photo of a product, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
 });
 export type DarpanAssistantInput = z.infer<typeof DarpanAssistantInputSchema>;
 
@@ -49,6 +55,7 @@ const prompt = ai.definePrompt({
       schema: z.object({
           question: z.string(),
           products: z.array(z.any()),
+          photoDataUri: z.string().optional(),
       })
   },
   output: { schema: DarpanAssistantOutputSchema },
@@ -56,7 +63,9 @@ const prompt = ai.definePrompt({
 
 Your goal is to answer user questions about products, ordering, shipping, or anything related to the store. Be concise and encouraging.
 
-You have access to the store's product list. Use it to answer questions about available items.
+If the user provides an image, your primary task is to identify the product in the image by comparing it to the product catalog below. State which product you think it is and why. If it's a screenshot from social media, acknowledge that and still try to find the matching product.
+
+If no image is provided, answer the user's text-based question.
 
 Current Product Catalog:
 ---
@@ -70,6 +79,10 @@ How to order:
 2. Check details, select a size, and click 'Order Now'.
 3. Fill in your details and click 'Send Order on WhatsApp'.
 All orders are placed via WhatsApp. Cash on Delivery is available for most products.
+
+{{#if photoDataUri}}
+User's Uploaded Image: {{media url=photoDataUri}}
+{{/if}}
 
 Now, please answer the following user question.
 
@@ -90,6 +103,7 @@ const darpanAssistantFlow = ai.defineFlow(
     const { output } = await prompt({
         question: input.question,
         products: products,
+        photoDataUri: input.photoDataUri,
     });
 
     return output || { answer: "I'm sorry, I couldn't process that request. Please try again." };
