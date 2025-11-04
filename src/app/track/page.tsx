@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -55,6 +55,18 @@ export default function TrackOrderPage() {
     resolver: zodResolver(searchSchema),
     defaultValues: { phone: '' },
   });
+  
+  useEffect(() => {
+    try {
+        const savedPhone = sessionStorage.getItem('customer-phone');
+        if (savedPhone) {
+            setPhoneNumber(savedPhone);
+            searchForm.setValue('phone', savedPhone);
+        }
+    } catch (e) {
+        console.warn("Could not read phone number from session storage:", e);
+    }
+  }, [searchForm]);
 
   const onSearchSubmit: SubmitHandler<SearchFormData> = (data) => {
     setPhoneNumber(data.phone);
@@ -144,7 +156,7 @@ export default function TrackOrderPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={isLoading} className="h-10">
+                  <Button type="submit" disabled={searchForm.formState.isSubmitting || isLoading} className="h-10">
                     <Search className="mr-2 h-4 w-4" />
                     Search
                   </Button>
@@ -154,7 +166,13 @@ export default function TrackOrderPage() {
           </Card>
           
           <div className="space-y-4">
-              {isLoading && Array.from({length: 2}).map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
+              {isLoading && (
+                <>
+                    <h2 className="text-2xl font-bold font-headline animate-pulse">Searching for your orders...</h2>
+                    <Skeleton className="h-40 w-full" />
+                    <Skeleton className="h-40 w-full" />
+                </>
+              )}
               
               {phoneNumber && !isLoading && sortedOrders.length > 0 && (
                   <h2 className="text-2xl font-bold font-headline">Your Orders</h2>

@@ -110,6 +110,13 @@ export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormPro
         }
     }
 
+    // Save phone number to session storage for tracking
+    try {
+        sessionStorage.setItem('customer-phone', values.phone);
+    } catch (e) {
+        console.warn("Could not save phone number to session storage:", e);
+    }
+
 
     // 2. Open WhatsApp
     const message = `
