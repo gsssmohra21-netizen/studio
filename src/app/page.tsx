@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -20,7 +19,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { CustomerDetailsForm, type CustomerDetails } from '@/components/customer-details-form';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DarpanAssistant } from '@/components/darpan-assistant';
 import { Separator } from '@/components/ui/separator';
 
 
