@@ -26,6 +26,7 @@ import {
   Instagram,
   Home
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminLayout({
   children,
@@ -34,19 +35,21 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
 
   useEffect(() => {
     const authToken = sessionStorage.getItem('darpan-admin-auth');
     if (authToken === 'true') {
-      setIsAuthenticated(true);
+      setAuthStatus('authenticated');
     } else {
+      setAuthStatus('unauthenticated');
       router.push('/admin/login');
     }
   }, [router]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('darpan-admin-auth');
+    setAuthStatus('unauthenticated');
     router.push('/admin/login');
   };
 
@@ -57,7 +60,18 @@ export default function AdminLayout({
     { href: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
-  if (!isAuthenticated) {
+  if (authStatus === 'loading') {
+     return (
+        <div className="flex h-screen w-screen items-center justify-center bg-background">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <Skeleton className="h-6 w-40" />
+          </div>
+        </div>
+      );
+  }
+
+  if (authStatus === 'unauthenticated') {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <p className="text-muted-foreground">Redirecting to login...</p>

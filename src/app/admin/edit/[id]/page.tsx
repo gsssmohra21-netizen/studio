@@ -41,13 +41,14 @@ export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
+
   useEffect(() => {
     const authToken = sessionStorage.getItem('darpan-admin-auth');
     if (authToken === 'true') {
-      setIsAuthenticated(true);
+      setAuthStatus('authenticated');
     } else {
+      setAuthStatus('unauthenticated');
       router.push('/admin/login');
     }
   }, [router]);
@@ -58,7 +59,7 @@ export default function EditProductPage() {
       return doc(firestore, 'products', id);
   }, [firestore, id]);
 
-  const { data: product, isLoading } = useDoc<Product>(productRef);
+  const { data: product, isLoading: isProductLoading } = useDoc<Product>(productRef);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -128,7 +129,7 @@ export default function EditProductPage() {
         title: 'Product Updated!',
         description: `${data.name} has been successfully updated.`,
       });
-      router.push('/admin');
+      router.push('/admin/products');
     } catch (error) {
       console.error('Error updating product:', error);
       toast({
@@ -143,20 +144,19 @@ export default function EditProductPage() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('darpan-admin-auth');
+    setAuthStatus('unauthenticated');
     router.push('/admin/login');
   };
 
-  if (!isAuthenticated) {
+  if (authStatus !== 'authenticated') {
     return (
         <div className="flex h-screen w-screen items-center justify-center bg-background">
-            <div className="flex flex-col items-center space-y-4">
-                 <p className="text-muted-foreground">Redirecting to login...</p>
-            </div>
+             <p className="text-muted-foreground">Loading...</p>
         </div>
     );
   }
 
-  if (isLoading) {
+  if (isProductLoading) {
     return (
         <div className="bg-background min-h-screen">
              <header className="bg-card border-b sticky top-0 z-40">
@@ -208,42 +208,11 @@ export default function EditProductPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="bg-card border-b sticky top-0 z-40">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center gap-4">
-                <Link href="/" className="flex items-center gap-2 text-3xl font-bold text-primary font-headline">
-                    <Image src="https://i.postimg.cc/bvypQBy5/IMG-20251031-224943-060.webp" alt="Darpan Wears Logo" width={48} height={48} className="rounded-full" />
-                    <span>Darpan Wears - Admin</span>
-                </Link>
-                <Image src="https://i.postimg.cc/wTjXzYpT/indian-flag-waving.gif" alt="Indian Flag" width={40} height={27} className="hidden sm:block" />
-                <Link
-                    href="https://www.instagram.com/darpan_wears?igsh=a2pkYXhpajVwNnR3"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-primary"
-                    >
-                    <Instagram className="h-6 w-6" />
-                    <span className="sr-only">Instagram</span>
-                </Link>
-            </div>
-            <div className='flex items-center gap-4'>
-                <Button onClick={handleLogout} variant="outline" size="sm">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                </Button>
-                <Button asChild>
-                    <Link href="/">View Shop</Link>
-                </Button>
-            </div>
-          </div>
-        </div>
-      </header>
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-2xl mx-auto">
             <div className="mb-8">
                 <Button asChild variant="ghost">
-                    <Link href="/admin">
+                    <Link href="/admin/products">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Product List
                     </Link>
