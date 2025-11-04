@@ -284,7 +284,7 @@ export default function Home() {
               ) : (
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full h-12 text-base">
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder="Choose a category" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map(category => (
