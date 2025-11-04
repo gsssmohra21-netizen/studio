@@ -2,16 +2,17 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Inter, Poppins } from 'next/font/google'
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 })
 
-const playfair_display = Playfair_Display({
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-playfair-display',
+  variable: '--font-poppins',
+  weight: ['400', '700']
 })
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair_display.variable} font-body antialiased`}>
+      <body className={`${inter.variable} ${poppins.variable} font-body antialiased`}>
         <FirebaseClientProvider>
           {children}
         </FirebaseClientProvider>
