@@ -9,12 +9,13 @@ import { useCollection, useDoc, useFirestore, useMemoFirebase } from '@/firebase
 import type { Product } from '@/lib/products';
 import { collection, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Instagram, Search, PackageSearch } from 'lucide-react';
-import type { SiteSetting } from '@/lib/settings';
+import { Instagram, Search, PackageSearch, Megaphone } from 'lucide-react';
+import type { SiteSetting, AnnouncementSetting } from '@/lib/settings';
 import { useState, useMemo, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Autoplay from "embla-carousel-autoplay";
+import { Button } from '@/components/ui/button';
 
 
 function SiteFooter() {
@@ -33,6 +34,33 @@ function SiteFooter() {
       </div>
     </footer>
   );
+}
+
+function AnnouncementBar() {
+  const firestore = useFirestore();
+  const announcementDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'settings', 'announcement');
+  }, [firestore]);
+
+  const { data: announcementData, isLoading } = useDoc<AnnouncementSetting>(announcementDocRef);
+
+  if (isLoading) {
+    return <Skeleton className="h-12 w-full mb-8" />;
+  }
+
+  if (!announcementData || !announcementData.content) {
+    return null;
+  }
+
+  return (
+    <div className="mb-8 border-2 border-dashed border-primary/50 rounded-lg p-4 bg-primary/5 text-center">
+        <div className="flex items-center justify-center gap-3">
+            <Megaphone className="h-6 w-6 text-primary" />
+            <p className="font-headline text-lg font-semibold text-primary">{announcementData.content}</p>
+        </div>
+    </div>
+  )
 }
 
 function HeroCarousel({ products, isLoading }: { products: Product[] | null, isLoading: boolean }) {
@@ -58,7 +86,7 @@ function HeroCarousel({ products, isLoading }: { products: Product[] | null, isL
     }
 
     return (
-        <section className="w-full mb-12">
+        <section className="w-full mb-12 border rounded-lg overflow-hidden shadow-sm">
             <Carousel
                 plugins={[plugin.current]}
                 className="w-full"
@@ -128,6 +156,11 @@ export default function Home() {
                     <span className="sr-only">Instagram</span>
                 </Link>
             </div>
+             <div className="flex items-center gap-2">
+              <Button variant="ghost" asChild>
+                <Link href="/admin/login">Admin Panel</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -150,6 +183,7 @@ export default function Home() {
             </div>
           </div>
           
+          <AnnouncementBar />
           <HeroCarousel products={products} isLoading={isLoading} />
 
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">

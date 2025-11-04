@@ -1,3 +1,4 @@
+
 export type SiteSetting = {
     id: string;
     content: string;
@@ -6,4 +7,9 @@ export type SiteSetting = {
 export type PaymentSetting = {
     id: string;
     isCashOnDeliveryEnabled: boolean;
+};
+
+export type AnnouncementSetting = {
+    id: string;
+    content: string;
 };

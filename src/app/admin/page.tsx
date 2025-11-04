@@ -19,11 +19,11 @@ import type { Product } from '@/lib/products';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Pencil, Trash2, Search, PlusCircle, Instagram, Calendar, CheckCircle, Clock, Settings, LogOut } from 'lucide-react';
+import { Pencil, Trash2, Search, PlusCircle, Instagram, Calendar, CheckCircle, Clock, Settings, LogOut, Megaphone } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import type { Order } from '@/lib/orders';
-import type { PaymentSetting, SiteSetting } from '@/lib/settings';
+import type { PaymentSetting, SiteSetting, AnnouncementSetting } from '@/lib/settings';
 import { format } from 'date-fns';
 
 const productSchema = z.object({
@@ -42,6 +42,10 @@ const footerSchema = z.object({
   content: z.string().min(1, "Footer content cannot be empty."),
 });
 
+const announcementSchema = z.object({
+  content: z.string().optional(),
+});
+
 const paymentSchema = z.object({
   isCashOnDeliveryEnabled: z.boolean(),
 });
@@ -49,6 +53,7 @@ const paymentSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 type FooterFormData = z.infer<typeof footerSchema>;
+type AnnouncementFormData = z.infer<typeof announcementSchema>;
 type PaymentFormData = z.infer<typeof paymentSchema>;
 
 function ProductSearch() {
@@ -350,6 +355,32 @@ function SiteSettings() {
   const { toast } = useToast();
   const firestore = useFirestore();
 
+  // Announcement Form
+  const [isSubmittingAnnouncement, setIsSubmittingAnnouncement] = useState(false);
+  const announcementDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'announcement') : null, [firestore]);
+  const { data: announcementData, isLoading: isLoadingAnnouncement } = useDoc<AnnouncementSetting>(announcementDocRef);
+  const announcementForm = useForm<AnnouncementFormData>({ resolver: zodResolver(announcementSchema) });
+  useEffect(() => {
+    if (announcementData) {
+      announcementForm.reset({ content: announcementData.content });
+    }
+  }, [announcementData, announcementForm]);
+
+  const onAnnouncementSubmit: SubmitHandler<AnnouncementFormData> = async (data) => {
+    if (!firestore || !announcementDocRef) return;
+    setIsSubmittingAnnouncement(true);
+    try {
+      await setDoc(announcementDocRef, data, { merge: true });
+      toast({ title: 'Announcement Updated!', description: 'Your announcement bar has been saved.' });
+    } catch (error) {
+      console.error('Error updating announcement:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Could not update announcement.' });
+    } finally {
+      setIsSubmittingAnnouncement(false);
+    }
+  };
+
+
   // Footer Form
   const [isSubmittingFooter, setIsSubmittingFooter] = useState(false);
   const footerDocRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'footer') : null, [firestore]);
@@ -443,6 +474,41 @@ function SiteSettings() {
                             />
                     </Form>
                     )}
+                </CardContent>
+            </Card>
+        </div>
+
+        <div>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5" /> Announcement Bar</CardTitle>
+                </CardHeader>
+                <CardContent>
+                {isLoadingAnnouncement ? <Skeleton className="h-40 w-full" /> : (
+                <Form {...announcementForm}>
+                    <form onSubmit={announcementForm.handleSubmit(onAnnouncementSubmit)} className="space-y-4">
+                    <FormField
+                        control={announcementForm.control}
+                        name="content"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Announcement Text</FormLabel>
+                            <FormDescription>
+                                This text will appear in a special bar on your homepage. Leave it empty to hide the bar.
+                            </FormDescription>
+                            <FormControl>
+                            <Textarea placeholder="e.g., ✨ Diwali Sale is LIVE! ✨" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <Button type="submit" disabled={isSubmittingAnnouncement} className="w-full">
+                        {isSubmittingAnnouncement ? 'Saving Announcement...' : 'Save Announcement'}
+                    </Button>
+                    </form>
+                </Form>
+                )}
                 </CardContent>
             </Card>
         </div>
