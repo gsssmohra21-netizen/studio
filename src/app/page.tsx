@@ -86,7 +86,7 @@ function HeroCarousel({ products, isLoading }: { products: Product[] | null, isL
     }
 
     return (
-        <section className="w-full mb-12 border rounded-lg overflow-hidden shadow-sm relative">
+        <section className="w-full mb-12 border rounded-lg overflow-hidden shadow-lg relative">
             <Carousel
                 plugins={[plugin.current]}
                 className="w-full"
@@ -112,8 +112,8 @@ function HeroCarousel({ products, isLoading }: { products: Product[] | null, isL
                     ))}
                 </CarouselContent>
             </Carousel>
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none">
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-headline font-bold text-white text-center shadow-lg p-4">
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center pointer-events-none">
+                <h2 className="text-5xl sm:text-6xl md:text-7xl font-headline font-bold text-white text-center p-4" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.7)' }}>
                     Welcome to Darpan Wears
                 </h2>
             </div>
