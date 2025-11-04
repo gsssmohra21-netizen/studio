@@ -55,18 +55,6 @@ export default function TrackOrderPage() {
     resolver: zodResolver(searchSchema),
     defaultValues: { phone: '' },
   });
-  
-  useEffect(() => {
-    try {
-        const savedPhone = sessionStorage.getItem('customer-phone');
-        if (savedPhone) {
-            setPhoneNumber(savedPhone);
-            searchForm.setValue('phone', savedPhone);
-        }
-    } catch (e) {
-        console.warn("Could not read phone number from session storage:", e);
-    }
-  }, [searchForm]);
 
   const onSearchSubmit: SubmitHandler<SearchFormData> = (data) => {
     setPhoneNumber(data.phone);
