@@ -12,6 +12,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { Separator } from '@/components/ui/separator';
 import ProductDetailsClient from '@/components/product-details-client';
@@ -19,6 +20,7 @@ import type { Product } from "@/lib/products";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "./ui/scroll-area";
+import { Button } from "./ui/button";
 
 
 interface ProductDetailsDialogProps {
@@ -122,7 +124,7 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
             <SheetTrigger asChild onClick={() => setOpen(true)}>{children}</SheetTrigger>
             <SheetContent side="bottom" className="w-full p-0 flex flex-col max-h-[95vh] rounded-t-lg">
                 <ScrollArea className="flex-1">
-                    <div className="pb-6">
+                    <div className="pb-24">
                         {hasMedia ? (
                             <Carousel className="w-full rounded-t-lg">
                                 <CarouselContent>
@@ -178,6 +180,14 @@ export function ProductDetailsDialog({ product, children }: ProductDetailsDialog
                         </div>
                     </div>
                 </ScrollArea>
+                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t">
+                    <div className="flex gap-4">
+                         <SheetClose asChild>
+                            <Button variant="outline" className="w-1/3">Back</Button>
+                        </SheetClose>
+                        <ProductDetailsClient.OrderButton product={product} />
+                    </div>
+                 </div>
             </SheetContent>
         </Sheet>
     )

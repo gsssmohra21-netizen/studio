@@ -10,11 +10,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { OrderForm } from './order-form';
 import { ShoppingCart, Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-export default function ProductDetailsClient({ product }: { product: Product }) {
+
+function OrderButton({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState<string | undefined>(product.sizes[0]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleOrderClick = () => {
     if (!selectedSize) {
@@ -28,16 +31,58 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
     setIsDialogOpen(true);
   }
 
-  const isCodAvailable = product.isCashOnDeliveryAvailable ?? true;
-
+  const className = isMobile
+    ? "w-full"
+    : "w-full bg-accent text-accent-foreground hover:bg-accent/90 text-md py-6 shadow-lg transform transition-transform hover:scale-105";
 
   return (
-    <div className="space-y-6">
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <Button
+          size="lg"
+          className={className}
+          onClick={handleOrderClick}
+          aria-label="Order now"
+        >
+          <ShoppingCart className="mr-2 h-5 w-5" />
+          Order Now
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-headline">Confirm Your Order</DialogTitle>
+        </DialogHeader>
+        {selectedSize && <OrderForm product={product} selectedSize={selectedSize} setDialogOpen={setIsDialogOpen} />}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+
+function ProductDetailsClient({ product }: { product: Product }) {
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(product.sizes[0]);
+  const isCodAvailable = product.isCashOnDeliveryAvailable ?? true;
+  const isMobile = useIsMobile();
+  
+  const handleSizeChange = (size: string) => {
+    setSelectedSize(size);
+    // This is a bit of a hack to pass the selected size up to the OrderButton
+    // A better solution would involve a shared state manager (like Zustand or Context)
+    // but for this simple case, we can find the radio group in the parent and update it.
+    const parentOrderButtonRadioGroup = document.querySelector(`[data-product-id="${product.id}"] [aria-label="Select size"]`);
+    if(parentOrderButtonRadioGroup) {
+      const radioToCheck = parentOrderButtonRadioGroup.querySelector(`[value="${size}"]`) as HTMLButtonElement | null;
+      radioToCheck?.click();
+    }
+  }
+
+  return (
+    <div className="space-y-6" data-product-id={product.id}>
       <div>
         <h3 className="text-sm font-semibold text-foreground mb-2">Select Size:</h3>
         <RadioGroup
           value={selectedSize}
-          onValueChange={setSelectedSize}
+          onValueChange={handleSizeChange}
           className="flex flex-wrap gap-2"
           aria-label="Select size"
         >
@@ -66,25 +111,12 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
          </div>
        )}
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button 
-            size="lg" 
-            className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-md py-6 shadow-lg transform transition-transform hover:scale-105"
-            onClick={handleOrderClick}
-            aria-label="Order now"
-          >
-            <ShoppingCart className="mr-2 h-5 w-5" />
-            Order Now
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-headline">Confirm Your Order</DialogTitle>
-          </DialogHeader>
-          {selectedSize && <OrderForm product={product} selectedSize={selectedSize} setDialogOpen={setIsDialogOpen} />}
-        </DialogContent>
-      </Dialog>
+      {!isMobile && <OrderButton product={product} />}
     </div>
   );
 }
+
+ProductDetailsClient.OrderButton = OrderButton;
+
+export default ProductDetailsClient;
+
