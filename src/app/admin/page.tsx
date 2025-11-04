@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
@@ -18,7 +19,7 @@ import type { Product } from '@/lib/products';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Pencil, Trash2, Search, PlusCircle, Instagram, Calendar, CheckCircle, Clock, Settings } from 'lucide-react';
+import { Pencil, Trash2, Search, PlusCircle, Instagram, Calendar, CheckCircle, Clock, Settings, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import type { Order } from '@/lib/orders';
@@ -486,7 +487,20 @@ function SiteSettings() {
 
 export default function AdminPage() {
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
+  useEffect(() => {
+    // Check for auth token in sessionStorage
+    const authToken = sessionStorage.getItem('darpan-admin-auth');
+    if (authToken === 'true') {
+      setIsAuthenticated(true);
+    } else {
+      router.push('/admin/login');
+    }
+  }, [router]);
+
+
   const { toast } = useToast();
   const firestore = useFirestore();
 
@@ -568,6 +582,21 @@ export default function AdminPage() {
     }
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('darpan-admin-auth');
+    router.push('/admin/login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+        <div className="flex h-screen w-screen items-center justify-center bg-background">
+            <div className="flex flex-col items-center space-y-4">
+                <p className="text-muted-foreground">Redirecting to login...</p>
+            </div>
+        </div>
+    );
+  }
+
 
   return (
     <div className="bg-background min-h-screen">
@@ -590,9 +619,15 @@ export default function AdminPage() {
                     <span className="sr-only">Instagram</span>
                 </Link>
             </div>
-            <Button asChild>
-                <Link href="/">View Shop</Link>
-            </Button>
+            <div className='flex items-center gap-4'>
+                <Button onClick={handleLogout} variant="outline" size="sm">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                </Button>
+                <Button asChild>
+                    <Link href="/">View Shop</Link>
+                </Button>
+            </div>
           </div>
         </div>
       </header>

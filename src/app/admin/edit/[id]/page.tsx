@@ -17,7 +17,7 @@ import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import type { Product } from '@/lib/products';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Instagram, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Instagram, PlusCircle, Trash2, LogOut } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 const productSchema = z.object({
@@ -40,6 +40,16 @@ export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    const authToken = sessionStorage.getItem('darpan-admin-auth');
+    if (authToken === 'true') {
+      setIsAuthenticated(true);
+    } else {
+      router.push('/admin/login');
+    }
+  }, [router]);
   
   const firestore = useFirestore();
   const productRef = useMemoFirebase(() => {
@@ -128,6 +138,21 @@ export default function EditProductPage() {
     }
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('darpan-admin-auth');
+    router.push('/admin/login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+        <div className="flex h-screen w-screen items-center justify-center bg-background">
+            <div className="flex flex-col items-center space-y-4">
+                 <p className="text-muted-foreground">Redirecting to login...</p>
+            </div>
+        </div>
+    );
+  }
+
   if (isLoading) {
     return (
         <div className="bg-background min-h-screen">
@@ -199,9 +224,15 @@ export default function EditProductPage() {
                     <span className="sr-only">Instagram</span>
                 </Link>
             </div>
-            <Button asChild>
-                <Link href="/">View Shop</Link>
-            </Button>
+            <div className='flex items-center gap-4'>
+                <Button onClick={handleLogout} variant="outline" size="sm">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                </Button>
+                <Button asChild>
+                    <Link href="/">View Shop</Link>
+                </Button>
+            </div>
           </div>
         </div>
       </header>
