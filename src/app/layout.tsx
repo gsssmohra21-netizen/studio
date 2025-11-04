@@ -31,7 +31,6 @@ export default function RootLayout({
           {children}
         </FirebaseClientProvider>
         <Toaster />
-        <audio id="cancel-sound" src="/notification.mp3" preload="auto"></audio>
       </body>
     </html>
   );

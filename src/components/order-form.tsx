@@ -44,15 +44,6 @@ export function OrderForm({ product, selectedSize, setDialogOpen }: OrderFormPro
   const firestore = useFirestore();
   const { toast } = useToast();
   
-  // Create an audio object that can be played
-  useEffect(() => {
-    const audio = new Audio('/notification.mp3');
-    audio.load(); // Preload the sound
-    (window as any).playNotificationSound = () => {
-        audio.play().catch(error => console.error("Audio play failed:", error));
-    };
-  }, []);
-
   const paymentSettingsRef = useMemoFirebase(() => {
     if (!firestore) return null;
     return doc(firestore, 'settings', 'paymentOptions');
@@ -133,9 +124,9 @@ Address: ${values.address}
     window.open(whatsappUrl, '_blank');
 
     // 3. Play sound and show toast
-    if((window as any).playNotificationSound) {
-        (window as any).playNotificationSound();
-    }
+    const audio = new Audio('/notification.mp3');
+    audio.play().catch(e => console.error("Audio play failed", e));
+
     toast({
         title: "✅ Order Sent!",
         description: "Your order has been sent. We will contact you shortly.",

@@ -73,11 +73,8 @@ export default function Home() {
                     <span className="sr-only">Instagram</span>
                 </Link>
             </div>
-             <Button asChild variant="outline">
-                <Link href="/track">
-                    <PackageSearch className="mr-2 h-4 w-4" />
-                    Track Order
-                </Link>
+            <Button asChild>
+              <Link href="/admin">Admin Panel</Link>
             </Button>
           </div>
         </div>
