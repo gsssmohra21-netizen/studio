@@ -1,10 +1,17 @@
 'use client';
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Bot } from "lucide-react";
 
 export function DarpanAssistantButton() {
+    const pathname = usePathname();
+
+    if (pathname.startsWith('/admin') || pathname === '/chat') {
+        return null;
+    }
+
     return (
         <Button asChild className="fixed bottom-6 right-6 h-14 w-auto px-5 rounded-full shadow-lg animate-bounce">
             <Link href="/chat">
